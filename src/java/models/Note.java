@@ -5,11 +5,13 @@
  */
 package models;
 
+import java.io.Serializable;
+
 /**
  *
  * @author meeye
  */
-public class Note {
+public class Note implements Serializable {
     private String title;
     private String contents;
 
@@ -38,6 +40,7 @@ public class Note {
     public void setContents(String contents) {
         this.contents = contents;
     }
+
 
     
     
