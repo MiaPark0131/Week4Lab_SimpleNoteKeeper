@@ -7,6 +7,8 @@ package servlet;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -33,14 +35,15 @@ public class NoteServlet extends HttpServlet {
         String title = br.readLine();
         String contents = br.readLine();
         String edit = request.getParameter("edit");
+        String create = request.getParameter("create");
         
-
         Note note = new Note(title, contents);
         request.setAttribute("note", note);
 
         try {
             if (edit.equals(""))  {
                 getServletContext().getRequestDispatcher("/WEB-INF/editnote.jsp").forward(request, response);
+                
             }
         } catch(NullPointerException e) {
             getServletContext().getRequestDispatcher("/WEB-INF/viewnote.jsp").forward(request, response);
@@ -51,28 +54,71 @@ public class NoteServlet extends HttpServlet {
 
    
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) {
         
-        String path = getServletContext().getRealPath("/WEB-INF/note.txt");
-        PrintWriter pw = new PrintWriter(new BufferedWriter(new FileWriter(path, false)));
+        try {
+            String path = getServletContext().getRealPath("/WEB-INF/note.txt");
+            
+            FileWriter fw = new FileWriter(path, false);
+            BufferedWriter bw = new BufferedWriter(fw);
+            PrintWriter pw = new PrintWriter(bw);
 
-        Note note = new Note();
-        
-        note.setTitle(request.getParameter("title"));
-        
-        String contents = request.getParameter("contents");
-        note.setContents(contents.replace("\r\n", "<br>"));
-        
-        request.setAttribute("note", note);
-        
-        pw.println(note.getTitle());
-        pw.println(note.getContents());
-        
-        getServletContext().getRequestDispatcher("/WEB-INF/viewnote.jsp").forward(request, response);
-        
-        pw.close();
+            Note note = new Note();
 
+            note.setTitle(request.getParameter("title"));
+
+            String contents = request.getParameter("contents");
+            note.setContents(contents.replace("\r\n", "<br>"));
+
+            request.setAttribute("note", note);
+
+            pw.println(note.getTitle());
+            pw.println(note.getContents());
+            
+            String option = request.getParameter("option");
+            
+            if (option.equals("Save"))  {
+                
+                getServletContext().getRequestDispatcher("/WEB-INF/viewnote.jsp").forward(request, response);
+                
+            } else if (option.equals("Delete")) {
+                
+                note.setTitle("");
+                note.setContents("");
+                getServletContext().getRequestDispatcher("/WEB-INF/editnote.jsp").forward(request, response);
+                
+            } else  {
+                
+                String filename = getServletContext().getRealPath("/WEB-INF/") + request.getParameter("filename");
+                File file = new File(filename);
+                FileWriter newFw = new FileWriter(file, true);
+                
+                PrintWriter newPw = new PrintWriter(newFw);
+                
+                newPw.println(note.getTitle());
+                newPw.println(note.getContents());
+                
+                getServletContext().getRequestDispatcher("/WEB-INF/editnote.jsp").forward(request, response);
+                
+                newPw.close();
+                
+            }
+
+            pw.close();
+        
+        } catch (IOException e) {
+            
+            System.out.println("IO Exception occured.");
+            
+        } catch (ServletException e)    {
+            
+            System.out.println("Servlet exception occured.");
+            
+        } catch (Exception e)   {
+            
+            System.out.println("Exception occured.");
+        }
+        
     }
 
 }

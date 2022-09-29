@@ -17,7 +17,8 @@
         <form method="post" action="note">
             title: <input type="text" name="title"  value="${note.title}"><br>
             Contents: <textarea name="contents" rows="6" cols="25" name="contents">${note.contents}</textarea><br>
-            <input type="submit" value="Save">
+            Filename: <input type="text" name="filename"  value="${filename}"><br>
+            <input type="submit" name="option" value="Save"><input type="submit" name="option" value="Delete"><input type="submit" name="option" value="Create">
         </form>
     </body>
 </html>
