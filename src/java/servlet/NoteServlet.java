@@ -8,7 +8,7 @@ package servlet;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileOutputStream;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -35,7 +35,6 @@ public class NoteServlet extends HttpServlet {
         String title = br.readLine();
         String contents = br.readLine();
         String edit = request.getParameter("edit");
-        String create = request.getParameter("create");
         
         Note note = new Note(title, contents);
         request.setAttribute("note", note);
@@ -89,18 +88,26 @@ public class NoteServlet extends HttpServlet {
                 
             } else  {
                 
-                String filename = getServletContext().getRealPath("/WEB-INF/") + request.getParameter("filename");
-                File file = new File(filename);
-                FileWriter newFw = new FileWriter(file, true);
+                try {
                 
-                PrintWriter newPw = new PrintWriter(newFw);
-                
-                newPw.println(note.getTitle());
-                newPw.println(note.getContents());
-                
-                getServletContext().getRequestDispatcher("/WEB-INF/editnote.jsp").forward(request, response);
-                
-                newPw.close();
+                    String filename = getServletContext().getRealPath("/WEB-INF/") + request.getParameter("filename");
+                    File file = new File(filename);
+                    FileWriter newFw = new FileWriter(file, true);
+
+                    PrintWriter newPw = new PrintWriter(newFw);
+
+                    newPw.println(note.getTitle());
+                    newPw.println(note.getContents());
+
+                    getServletContext().getRequestDispatcher("/WEB-INF/editnote.jsp").forward(request, response);
+
+                    newPw.close();
+                    
+                } catch (FileNotFoundException e)  {
+                    
+                    getServletContext().getRequestDispatcher("/WEB-INF/editnote.jsp").forward(request, response);
+                }
+                 
                 
             }
 
